@@ -65,7 +65,7 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="{{ tomcat_port }}" protocol="HTTP/1.1"
+    <Connector port="{{ tomcat_port }}" address="{{ tomcat_address }}" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="8443" />
     <!-- A "Connector" using the shared thread pool-->
@@ -135,6 +135,9 @@
                prefix="localhost_access_log." suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
+        <Valve className="org.apache.catalina.valves.ErrorReportValve"
+               showReport="{{tomcat_show_report}}"
+               showServerInfo="{{tomcat_server_info}}"/>
       </Host>
     </Engine>
   </Service>

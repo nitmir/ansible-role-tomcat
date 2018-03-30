@@ -1,0 +1,50 @@
+module tomcat_app 1.0;
+
+require {
+	type tomcat_t;
+{% if tomcat_selinux_sendmail %}
+	type smtp_port_t;
+{% endif %}
+{% if tomcat_selinux_autofs %}
+	type automount_t;
+	type autofs_t;
+{% endif %}
+{% if tomcat_selinux_glusterfs %}
+	type glusterd_t;
+	type fusefs_t;
+{% endif %}
+{% if tomcat_selinux_clamav %}
+	type antivirus_exec_t;
+	type antivirus_db_t;
+{% endif %}
+{% if tomcat_selinux_autofs %}
+	class fifo_file write;
+{% endif %}
+	class dir { create add_name getattr open read search write remove_name };
+	class file { append create getattr open read write execute execute_no_trans setattr unlink };
+{% if tomcat_selinux_sendmail %}
+	class tcp_socket name_connect;
+{% endif %}
+}
+
+{% if tomcat_selinux_glusterfs %}
+#============= glusterd_t ==============
+allow glusterd_t automount_t:fifo_file write;
+{% endif %}
+
+#============= tomcat_t ==============
+{% if tomcat_selinux_autofs %}
+allow tomcat_t autofs_t:dir { getattr search };
+{% endif %}
+{% if tomcat_selinux_glusterfs %}
+allow tomcat_t fusefs_t:dir { create add_name getattr open read search write remove_name };
+allow tomcat_t fusefs_t:file { append create getattr open read write setattr unlink };
+{% endif %}
+{% if tomcat_selinux_sendmail %}
+allow tomcat_t smtp_port_t:tcp_socket name_connect;
+{% endif %}
+{% if tomcat_selinux_clamav %}
+allow tomcat_t antivirus_exec_t:file { execute open read execute_no_trans };
+allow tomcat_t antivirus_db_t:dir { getattr read open search };
+allow tomcat_t antivirus_db_t:file { read open getattr };
+{% endif %}

@@ -3,6 +3,10 @@
 
 # Port for the Tomcat service
 tomcat_port: 8080
+tomcat_address: 127.0.0.1
+
+tomcat_show_report: "true"
+tomcat_server_info: "true"
 
 # List of libraries (jar files) to install in Tomcat lib/ directory
 tomcat_libraries: []
@@ -29,3 +33,11 @@ tomcat_roles:
 #     - ROLE1
 #     - ROLE2
 tomcat_users: []
+
+tomcat_selinux_write_paths:
+  - '/usr/share/tomcat/\.oracle_jre_usage(/.*)?'
+  - '/usr/share/tomcat/.java(/.*)?'
+tomcat_selinux_sendmail: false
+tomcat_selinux_autofs: false
+tomcat_selinux_glusterfs: false
+tomcat_selinux_clamav: false

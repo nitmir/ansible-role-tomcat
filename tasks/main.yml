@@ -40,3 +40,40 @@
 - include_tasks: manager.yml
   when: tomcat_install_admin_webapp
 
+- debug: var=tomcat_selinux_write_paths
+
+- name: Allow tomcat to reach some paths in selinux
+  sefcontext:
+    target: "{{item}}"
+    setype: tomcat_var_lib_t 
+    state: present
+  with_items: tomcat_selinux_write_paths
+  register: tomcat_filecontext
+  notify: restart tomcat
+  when: ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'
+
+- name: Load custom selinux module for tomcat
+  template:
+    src: var_lib_tomcat_tomcat_app.te.j2
+    dest: /var/lib/tomcat/tomcat_app.te
+    owner: root
+    group: root
+    mode: 0644
+  register: tomcat_selinux_module_source
+  when: ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled' and (tomcat_selinux_sendmail or tomcat_selinux_autofs or tomcat_selinux_glusterfs or tomcat_selinux_clamav)
+
+- command: checkmodule -M -m -o tomcat_app.mod tomcat_app.te
+  args:
+    chdir: /var/lib/tomcat/
+  when: tomcat_selinux_module_source.changed
+
+- command: semodule_package -m tomcat_app.mod -o tomcat_app.pp
+  args:
+    chdir: /var/lib/tomcat/
+  when: tomcat_selinux_module_source.changed
+
+- command: semodule -i tomcat_app.pp
+  args:
+    chdir: /var/lib/tomcat/
+  notify: restart tomcat
+  when: tomcat_selinux_module_source.changed
