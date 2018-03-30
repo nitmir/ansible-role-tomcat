@@ -6,6 +6,8 @@
 {% endfor %}
 
 {% for user in tomcat_users %}
+{% if user.name and user.password %}
   <user name="{{ user.name }}" password="{{ user.password }}" roles="{{ user.roles|join(',') }}" />
+{% endif %}
 {% endfor %}
 </tomcat-users>
