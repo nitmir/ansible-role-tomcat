@@ -47,7 +47,7 @@
     target: "{{item}}"
     setype: tomcat_var_lib_t 
     state: present
-  with_items: tomcat_selinux_write_paths
+  with_items: "{{tomcat_selinux_write_paths}}"
   register: tomcat_filecontext
   notify: restart tomcat
   when: ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'
